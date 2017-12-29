@@ -2,9 +2,9 @@
 
 return [
     'class' => 'zlakomanov\oraclepack\Connection',
-    'dsn' => 'oci8:dbname=NEWCONTACTBASE_DEV',
-    'username' => 'RUBACHOK',
-    'password' => '12345',
+    'dsn' => 'oci8:dbname=',
+    'username' => '',
+    'password' => '',
     'enableSchemaCache' => true,
     'charset' => 'UTF8',
     'attributes' => [PDO::ATTR_STRINGIFY_FETCHES => true]
