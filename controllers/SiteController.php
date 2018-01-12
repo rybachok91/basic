@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\EntryForm;
+use app\models\User;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -119,6 +120,23 @@ class SiteController extends Controller
             return $this->render('entry-confirm', ['model' => $model]);
         } else {
             return $this->render('entry', ['model' => $model]);
+        }
+    }
+
+    public function actionAddAdmin() {
+        $model = User::find()->where(['username' => 'admin'])->one();
+        if (empty($model)) {
+            $user = new User();
+            $user->username = 'admin';
+            $user->id = 1;
+            $user->email = 'email@mail.ru';
+            $user->setPassword('admin');
+            $user->generateAuthKey();
+            if ($user->save()) {
+                return $this->actionSay('Пользователь добавлен!');
+            } else {
+                return $this->actionSay('Пользователь не добавлен!');
+            }
         }
     }
 }

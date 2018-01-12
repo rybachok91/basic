@@ -2,4 +2,4 @@
 
 use yii\helpers\Html;
 ?>
-<?= Html::encode($message) ?>
+<p class="alert alert-success"><?= Html::encode($message) ?></p>

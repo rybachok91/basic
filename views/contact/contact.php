@@ -4,9 +4,9 @@
 
 /* @var $form yii\bootstrap\ActiveForm */
 
+use kartik\date\DatePicker;
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
-use yii\jui\DatePicker;
 
 $this->title = 'Контакты';
 $this->params['breadcrumbs'][] = $this->title;
@@ -52,19 +52,17 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 <?= $form->field($model, 'BODY')->textarea(['rows' => 6]) ?>
 
-                <?= $form->field($model, 'CREATED')->widget(
-                    DatePicker::className(),
-                    [
-                        'model' => $model,
-                        'attribute' => 'CREATED',
-                        'dateFormat' => 'dd-MMM-yy',
-                        'language' => 'en',
-                        'inline' => false,
-                        'clientOptions' => [
-                            'autoclose' => true,
-                        ]]);
-                ?>
+                <?= $form->field($model, 'CREATED')->widget(DatePicker::className(), [
+                    'options' => ['placeholder' => 'Выберите дату ...'],
+                    'language' => 'ru',
+                    'pluginOptions' => [
+                        'todayHighlight' => true,
+                        'format' => 'dd-M-yyyy',
+                        'autoclose' => true,
+                    ]
+                ]);
 
+                ?>
                 <div class="form-group">
                     <?= Html::submitButton('Submit', ['class' => 'btn btn-primary', 'name' => 'contact-button']) ?>
                 </div>

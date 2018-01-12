@@ -17,9 +17,12 @@ class ContactController extends Controller
     public function actionIndex()
     {
         $model = new Contact();
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
 
-            return $this->render('say', ['message' => 'Сохранено!']);
+            $model->CREATED = date('d-M-y');
+            if ($model->save()) {
+                return $this->render('say', ['message' => 'Сохранено!']);
+            }
         }
         return $this->render('contact', [
             'model' => $model,

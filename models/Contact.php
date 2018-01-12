@@ -29,10 +29,11 @@ class Contact extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['NAME', 'EMAIL', 'SUBJECT', 'BODY', 'CREATED'], 'required'],
+            [['ID', 'NAME', 'EMAIL', 'SUBJECT', 'BODY', 'CREATED'], 'required'],
+            ['ID', 'integer'],
             [['NAME', 'EMAIL', 'SUBJECT'], 'string', 'max' => 20],
             [['BODY'], 'string', 'max' => 300],
-            [['CREATED'], 'date'],
+            [['CREATED'], 'safe'],
             ['EMAIL','email'],
         ];
     }
@@ -43,11 +44,16 @@ class Contact extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'NAME' => 'Name',
+            'NAME' => 'Имя',
             'EMAIL' => 'Email',
-            'SUBJECT' => 'Subject',
-            'BODY' => 'Body',
-            'CREATED' => 'Created',
+            'SUBJECT' => 'Тема',
+            'BODY' => 'Текст сообщения',
+            'CREATED' => 'Дата создания',
         ];
+    }
+
+    public function setCreated($value)
+    {
+
     }
 }
