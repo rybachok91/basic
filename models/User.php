@@ -2,95 +2,44 @@
 
 namespace app\models;
 
+use newcontact\nccore\models\MvEmployees;
 use Yii;
 use yii\base\Exception;
-use yii\base\NotSupportedException;
-use yii\behaviors\TimestampBehavior;
-use yii\db\ActiveRecord;
+use yii\base\Model;
 use yii\web\IdentityInterface;
 
 /**
- * This is the model class for table "user".
- *
- * @property int $id
+
  * @property string $username
- * @property string $auth_key
- * @property string $password_hush
- * @property string $password_reset_token
- * @property string $email
- * @property int $status
- * @property int $created_at
- * @property int $updated_at
- * @property string $password write-only password
+ * @property string $password
+ * @property boolean $rememberMe
+ * @property string $authKey
  */
-class User extends ActiveRecord implements IdentityInterface
+class User extends Model implements IdentityInterface
 {
-    const STATUS_USER = 0;
-    const STATUS_ADMIN = 10;
+    public $username;
+    public $password;
+    public $rememberMe = true;
 
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return 'USERS';
-    }
+    private $authKey;
 
-    public function behaviors()
-    {
-        return [
-            'TimestampBehavior' => [
-                'class' => TimestampBehavior::className(),
-                'value' => date('d-M-y h:i:s'),
-            ],
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function rules()
     {
         return [
-            [['id', 'status'], 'integer'],
-            [['username', 'password_hush', 'password_reset_token', 'email'], 'string', 'max' => 255],
-            [['auth_key'], 'string', 'max' => 32],
-            [['id', 'username'], 'unique'],
-            [['created_at', 'updated_at'], 'safe'],
-            ['status', 'default', 'value' => self::STATUS_ADMIN],
-            ['status', 'in', 'range' => [self::STATUS_ADMIN, self::STATUS_USER]],
+            [['username', 'password'], 'required'],
+            [['username'], 'string', 'max' => 30],
+            ['rememberMe', 'boolean'],
+            ['password', 'validatePassword'],
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
             'username' => 'Логин',
-            'auth_key' => 'Ключ аутентификации',
-            'password_hush' => 'Хеш пароля',
-            'password_reset_token' => 'Токен сброса пароля',
-            'email' => 'Email',
-            'status' => 'Статус',
-            'created_at' => 'Создан',
-            'updated_at' => 'Обновлен',
+            'password' => 'Пароль',
+            'rememberMe' => 'Запомнить меня',
         ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentity($id)
-    {
-        return static::findOne(['id' => $id]);
-    }
-
-    public function getStatus()
-    {
-        return $this->status;
     }
 
     /**
@@ -98,20 +47,12 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
-    }
-
-    /**
-     * Finds user by username
-     *
-     * @param $username
-     * @param $password
-     * @return null|static
-     */
-
-    public static function findByUsername($username)
-    {
-        return self::findOne(['username' => $username]);
+        foreach (self::$users as $user) {
+            if ($user['accessToken'] === $token) {
+                return new static($user);
+            }
+        }
+        return null;
     }
 
     /**
@@ -119,7 +60,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getId()
     {
-        return $this->getPrimaryKey();
+        return $this->username;
     }
 
     /**
@@ -127,7 +68,9 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getAuthKey()
     {
-        return $this->auth_key;
+        if (is_null($this->authKey))
+            $this->authKey = md5($this->username . Yii::$app->request->cookieValidationKey);
+        return $this->authKey;
     }
 
     /**
@@ -139,33 +82,76 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Generates password hash from password and sets it to the model
-     *
-     * @param string $password
-     * @throws \yii\base\Exception
+     * @inheritdoc
      */
-    public function setPassword($password)
+    public static function findIdentity($id)
     {
-        if (!$this->password_hush = Yii::$app->security->generatePasswordHash($password)) {
-            throw new Exception('Ошибка! Хеш пароля не сгенерирован.');
-        };
+        $user = self::loadUserFromSession();
+        if (is_object($user) && $user instanceof User) {
+            return $user;
+        } else if (!empty($id)) {
+            /** @var MvEmployees $employee */
+            $employee = MvEmployees::findOne(['LOGIN' => $id]);
+            if (!is_null($employee)) {
+                $user = new User();
+                $user->username = $employee->LOGIN;
+                $user->password = $employee->PASSWORD_HASH;
+                self::saveUserToSession($user);
+                return $user;
+            }
+
+        }
+        return null;
     }
 
     /**
-     * Generates an auth key
-     *
-     * @throws \yii\base\Exception
+     * @param User $user
      */
-    public function generateAuthKey()
+    public static function saveUserToSession(User $user)
     {
-        if (!$this->auth_key = Yii::$app->security->generateRandomString()) {
-            throw new Exception('Ошибка! Ключ авторизации не сгенерирован.');
-        };
+        $session = [];
+        $session['username'] = $user->username;
+        $session['password'] = $user->password;
+        Yii::$app->session->set('RYBACHOK', $session);
+    }
+
+    /**
+     * Загружаем пользователя из сессии, если он там есть
+     * @return User|null
+     */
+    public static function loadUserFromSession()
+    {
+        $session = Yii::$app->session->get('RYBACHOK');
+        if (is_array($session) && !empty($session)) {
+            $user = new User();
+            $user->username = $session['username'];
+            $user->password = $session['password'];
+            return $user;
+        }
+        return null;
+    }
+
+    public function validatePassword($attribute, $params)
+    {
+        if (!$this->hasErrors()) {
+            try {
+                /** @var MvEmployees $user */
+                $user = MvEmployees::findByLoginAndPassword($this->username, $this->password);
+                if (!empty($user)) {
+                    $this->username = $user->NAME;
+                }
+            } catch (Exception $e) {
+                $this->addError($attribute, 'Попробуйте позже: ' . $e->getMessage());
+            }
+            if (empty($user)) {
+                $this->addError($attribute, 'Некорретный пароль');
+            }
+        }
     }
 
     /**
      * Logs in a user using the provided username and password.
-     * @return boolean whether the user is logged in successfully
+     * @return bool whether the user is logged in successfully
      */
     public function login()
     {
@@ -176,13 +162,4 @@ class User extends ActiveRecord implements IdentityInterface
         return false;
     }
 
-    public static function saveUserToSession(User $user)
-    {
-        $session = [];
-        $session['username'] = $user->username;
-        $session['password'] = $user->password;
-        $session['name'] = $user->name;
-        $session['permissions'] = $user->permissions;
-        Yii::$app->session->set('RYBACHOK', $session);
-    }
 }

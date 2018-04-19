@@ -24,7 +24,8 @@
         "2amigos/yii2-date-picker-widget": "~1.0",
         "yiisoft/yii2-jui": "^2.0",
         "kartik-v/yii2-widget-datepicker": "@dev",
-        "kartik-v/yii2-grid": "@dev"
+        "kartik-v/yii2-grid": "@dev",
+        "newcontact/yii2-nc-core": "*"
     },
     "require-dev": {
         "yiisoft/yii2-gii": "~2.0.0",
@@ -71,6 +72,10 @@
         {
             "type": "git",
             "url": "http://gitlab.newcontact.su/a.zlakomanov/yii2-oracle-pack.git"
+        },
+        {
+            "type": "git",
+            "url": "http://gitlab.newcontact.su/SM4/yii2-nc-core.git"
         }
     ]
 }

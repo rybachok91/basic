@@ -29,5 +29,6 @@ phpunit.phar
 tests/_output/*
 tests/_support/_generated
 
-db.php
+/config/db.php
+/config/db_nc_core.php
 .gitignore

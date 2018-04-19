@@ -2,6 +2,7 @@
 
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
+$db_nc_core = require __DIR__ . '/db_nc_core.php';
 
 $config = [
     'id' => 'basic',
@@ -46,6 +47,7 @@ $config = [
             ],
         ],
         'db' => $db,
+        'db_nc_core' => $db_nc_core,
         'authManager' => [
             'class' => 'yii\rbac\DbManager',
         ],

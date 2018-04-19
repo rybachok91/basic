@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "40ceeaa444fbe7b1d30b6a9754e882e1",
+    "content-hash": "736ad6be193694de34d56567bb3af716",
     "packages": [
         {
             "name": "2amigos/yii2-date-picker-widget",
@@ -551,6 +551,39 @@
                 "yii2"
             ],
             "time": "2017-09-06T06:18:08+00:00"
+        },
+        {
+            "name": "newcontact/yii2-nc-core",
+            "version": "v0.1.2",
+            "source": {
+                "type": "git",
+                "url": "http://gitlab.newcontact.su/SM4/yii2-nc-core.git",
+                "reference": "dacc35e01134243aba7d157363ff380536fd1310"
+            },
+            "require": {
+                "yiisoft/yii2": "*"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "newcontact\\nccore\\": ""
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "p.gorbachev",
+                    "email": "p.gorbachev@newcontact.su"
+                }
+            ],
+            "description": "Расширение для работы с nc core",
+            "keywords": [
+                "extension",
+                "yii2"
+            ],
+            "time": "2016-11-24T13:03:23+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",

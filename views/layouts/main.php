@@ -10,6 +10,8 @@ use yii\bootstrap\NavBar;
 use yii\widgets\Breadcrumbs;
 use app\assets\AppAsset;
 
+$user = Yii::$app->user->identity;
+
 AppAsset::register($this);
 ?>
 <?php $this->beginPage() ?>
