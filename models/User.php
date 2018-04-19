@@ -27,7 +27,6 @@ class User extends Model implements IdentityInterface
     {
         return [
             [['username', 'password'], 'required'],
-            [['username'], 'string', 'max' => 30],
             ['rememberMe', 'boolean'],
             ['password', 'validatePassword'],
         ];
@@ -138,7 +137,7 @@ class User extends Model implements IdentityInterface
                 /** @var MvEmployees $user */
                 $user = MvEmployees::findByLoginAndPassword($this->username, $this->password);
                 if (!empty($user)) {
-                    $this->username = $user->NAME;
+                    $this->username = $user->LOGIN;
                 }
             } catch (Exception $e) {
                 $this->addError($attribute, 'Попробуйте позже: ' . $e->getMessage());
