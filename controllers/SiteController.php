@@ -5,8 +5,10 @@ namespace app\controllers;
 use app\models\EntryForm;
 use app\models\User;
 use Yii;
+use yii\base\Exception;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
@@ -19,17 +21,6 @@ class SiteController extends Controller
     public function behaviors()
     {
         return [
-            'access' => [
-                'class' => AccessControl::className(),
-                'only' => ['logout'],
-                'rules' => [
-                    [
-                        'actions' => ['logout'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-                ],
-            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -56,12 +47,15 @@ class SiteController extends Controller
     }
 
     /**
-     * Displays homepage.
-     *
+     * Главная страница
+     * Если пользователь - гость, переход на страницу входа
      * @return string
      */
     public function actionIndex()
     {
+        if (Yii::$app->user->isGuest) {
+            return $this->actionLogin();
+        }
         return $this->render('index');
     }
 
@@ -72,13 +66,9 @@ class SiteController extends Controller
      */
     public function actionLogin()
     {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+            return $this->goHome();
         }
         return $this->render('login', [
             'model' => $model,
@@ -92,9 +82,9 @@ class SiteController extends Controller
      */
     public function actionLogout()
     {
-        Yii::$app->user->logout();
+        Yii::$app->user->logout(true);
 
-        return $this->goHome();
+        return $this->redirect(['login']);
     }
 
     /**
@@ -112,30 +102,43 @@ class SiteController extends Controller
         return $this->render('say', ['message' => $message]);
     }
 
-    public function actionEntry () {
+    public function actionEntry()
+    {
 
         $model = new EntryForm();
 
-        if ($model-> load(Yii::$app->request->post()) && $model->validate()) {
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             return $this->render('entry-confirm', ['model' => $model]);
         } else {
             return $this->render('entry', ['model' => $model]);
         }
     }
 
-    public function actionAddAdmin() {
+    public function actionAddAdmin()
+    {
         $model = User::find()->where(['username' => 'admin'])->one();
         if (empty($model)) {
             $user = new User();
             $user->username = 'admin';
-            $user->id = 1;
+//            $user->id = 1;
             $user->email = 'email@mail.ru';
-            $user->setPassword('admin');
-            $user->generateAuthKey();
+
+            try {
+                $user->setPassword('admin');
+            } catch (Exception $exception) {
+                return $this->actionSay('Выброшено исключение: ' . $exception->getMessage());
+            }
+
+            try {
+                $user->generateAuthKey();
+            } catch (Exception $exception) {
+                return $this->actionSay('Выброшено исключение: ' . $exception->getMessage());
+            }
+
             if ($user->save()) {
                 return $this->actionSay('Пользователь добавлен!');
             } else {
-                return $this->actionSay('Пользователь не добавлен!');
+                return $this->actionSay('Ошибка! Пользователь не добавлен.');
             }
         }
     }

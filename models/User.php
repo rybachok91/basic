@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\base\Exception;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -22,17 +23,17 @@ use yii\web\IdentityInterface;
  * @property int $updated_at
  * @property string $password write-only password
  */
-class User extends \yii\db\ActiveRecord
+class User extends ActiveRecord implements IdentityInterface
 {
-    const STATUS_DELETED = 0;
-    const STATUS_ACTIVE = 10;
+    const STATUS_USER = 0;
+    const STATUS_ADMIN = 10;
 
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return '{{%user}}';
+        return 'USERS';
     }
 
     public function behaviors()
@@ -51,14 +52,13 @@ class User extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-//            [['id', 'username', 'auth_key', 'password_hush', 'email', 'created_at', 'updated_at'], 'required'],
             [['id', 'status'], 'integer'],
             [['username', 'password_hush', 'password_reset_token', 'email'], 'string', 'max' => 255],
             [['auth_key'], 'string', 'max' => 32],
-            [['id'], 'unique'],
+            [['id', 'username'], 'unique'],
             [['created_at', 'updated_at'], 'safe'],
-            ['status', 'default', 'value' => self::STATUS_ACTIVE],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            ['status', 'default', 'value' => self::STATUS_ADMIN],
+            ['status', 'in', 'range' => [self::STATUS_ADMIN, self::STATUS_USER]],
         ];
     }
 
@@ -69,14 +69,14 @@ class User extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'username' => 'Username',
-            'auth_key' => 'Auth Key',
-            'password_hush' => 'Password Hush',
-            'password_reset_token' => 'Password Reset Token',
+            'username' => 'Логин',
+            'auth_key' => 'Ключ аутентификации',
+            'password_hush' => 'Хеш пароля',
+            'password_reset_token' => 'Токен сброса пароля',
             'email' => 'Email',
-            'status' => 'Status',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'status' => 'Статус',
+            'created_at' => 'Создан',
+            'updated_at' => 'Обновлен',
         ];
     }
 
@@ -85,7 +85,12 @@ class User extends \yii\db\ActiveRecord
      */
     public static function findIdentity($id)
     {
-        return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
+        return static::findOne(['id' => $id]);
+    }
+
+    public function getStatus()
+    {
+        return $this->status;
     }
 
     /**
@@ -100,12 +105,13 @@ class User extends \yii\db\ActiveRecord
      * Finds user by username
      *
      * @param $username
+     * @param $password
      * @return null|static
      */
 
     public static function findByUsername($username)
     {
-        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+        return self::findOne(['username' => $username]);
     }
 
     /**
@@ -127,20 +133,9 @@ class User extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function valideteAuthKey($authKey)
+    public function validateAuthKey($authKey)
     {
         return $this->getAuthKey() === $authKey;
-    }
-
-    /**
-     * Validates password
-     *
-     * @param string $password password to validate
-     * @return bool if password provided is valid for current user
-     */
-    public function validatePassword($password)
-    {
-        return Yii::$app->security->validatePassword($password, $this->password_hush);
     }
 
     /**
@@ -151,11 +146,43 @@ class User extends \yii\db\ActiveRecord
      */
     public function setPassword($password)
     {
-        $this->password_hush = Yii::$app->security->generatePasswordHash($password);
+        if (!$this->password_hush = Yii::$app->security->generatePasswordHash($password)) {
+            throw new Exception('Ошибка! Хеш пароля не сгенерирован.');
+        };
     }
 
+    /**
+     * Generates an auth key
+     *
+     * @throws \yii\base\Exception
+     */
     public function generateAuthKey()
     {
-        $this->auth_key = Yii::$app->security->generateRandomString();
+        if (!$this->auth_key = Yii::$app->security->generateRandomString()) {
+            throw new Exception('Ошибка! Ключ авторизации не сгенерирован.');
+        };
+    }
+
+    /**
+     * Logs in a user using the provided username and password.
+     * @return boolean whether the user is logged in successfully
+     */
+    public function login()
+    {
+        if ($this->validate()) {
+            self::saveUserToSession($this);
+            return Yii::$app->user->login($this, $this->rememberMe ? 3600 * 24 * 30 : 0);
+        }
+        return false;
+    }
+
+    public static function saveUserToSession(User $user)
+    {
+        $session = [];
+        $session['username'] = $user->username;
+        $session['password'] = $user->password;
+        $session['name'] = $user->name;
+        $session['permissions'] = $user->permissions;
+        Yii::$app->session->set('RYBACHOK', $session);
     }
 }

@@ -4,6 +4,8 @@ namespace app\models;
 
 use Yii;
 use yii\base\Model;
+use yii\base\Exception;
+
 
 /**
  * LoginForm is the model behind the login form.
@@ -28,27 +30,35 @@ class LoginForm extends Model
         return [
             // username and password are both required
             [['username', 'password'], 'required'],
+            ['username', 'trim'],
             // rememberMe must be a boolean value
             ['rememberMe', 'boolean'],
-            // password is validated by validatePassword()
             ['password', 'validatePassword'],
         ];
     }
 
-    /**
-     * Validates the password.
-     * This method serves as the inline validation for password.
-     *
-     * @param string $attribute the attribute currently being validated
-     * @param array $params the additional name-value pairs given in the rule
-     */
+    public function attributeLabels()
+    {
+        return [
+            'username' => 'Логин',
+            'password' => 'Пароль',
+            'rememberMe' => 'Запомнить меня',
+        ];
+    }
+
     public function validatePassword($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $user = $this->getUser();
-
-            if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError($attribute, 'Incorrect username or password.');
+            try {
+                $user = User::findByUsername($this->username);
+                if (!empty($user)) {
+                    $this->username = $user->username;
+                }
+            } catch (Exception $e) {
+                $this->addError($attribute, 'Попробуйте позже: ' . $e->getMessage());
+            }
+            if (empty($user)) {
+                $this->addError($attribute, 'Некорретный пароль');
             }
         }
     }
@@ -59,10 +69,18 @@ class LoginForm extends Model
      */
     public function login()
     {
-        if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
+        if (!$this->hasErrors()) {
+
+            $user = $this->user;
+            if (!empty($user)) {
+                if (Yii::$app->getSecurity()->validatePassword($this->password, $user->password_hush)) {
+                    if ($this->validate()) {
+                        return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+                    }
+                }
+            }
         }
-        return false;
+        return  \Yii::$app->session->addFlash('danger', 'Неверный логин или пароль!');
     }
 
     /**
@@ -75,7 +93,6 @@ class LoginForm extends Model
         if ($this->_user === false) {
             $this->_user = User::findByUsername($this->username);
         }
-
         return $this->_user;
     }
 }
