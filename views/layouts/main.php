@@ -16,6 +16,7 @@ AppAsset::register($this);
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>">
 <head>
+    <link href="<?=Yii::$app->request->baseUrl?>/../favicon.ico" rel="shortcut icon" type="image/ico"  />
     <meta charset="<?= Yii::$app->charset ?>">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,8 +30,11 @@ AppAsset::register($this);
 <div class="wrap">
     <?php
     NavBar::begin([
-        'brandLabel' => Yii::$app->name,
+        'brandLabel' => Html::img('@web/logo.png', ['alt'=>Yii::$app->name, 'style' => ['height' => '105%']]),
         'brandUrl' => Yii::$app->homeUrl,
+        'brandOptions' => [
+            'style' => ['padding' => 0]
+        ],
         'options' => [
             'class' => 'navbar-inverse navbar-fixed-top',
         ],
@@ -38,11 +42,6 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            ['label' => 'Главная', 'url' => ['/site/index']],
-            ['label' => 'О нас', 'url' => ['/site/about']],
-            ['label' => 'Контакты', 'url' => ['/contact/index']],
-            ['label' => 'Страны', 'url' => ['/country/index']],
-            ['label' => 'Gii', 'url' => ['/gii/default/index']],
             Yii::$app->user->isGuest ? (
                 ['label' => 'Вход', 'url' => ['/site/login']]
             ) : (
@@ -71,9 +70,7 @@ AppAsset::register($this);
 
 <footer class="footer">
     <div class="container">
-        <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
-
-        <p class="pull-right"><?= Yii::powered() ?></p>
+        <p class="pull-left"> <?= date('d.m.Y H:i') ?></p>
     </div>
 </footer>
 
