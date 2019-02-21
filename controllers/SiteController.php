@@ -8,6 +8,7 @@ use yii\base\Exception;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
+use app\models\SearchOfficesForm;
 
 class SiteController extends Controller
 {
@@ -49,9 +50,9 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        if (Yii::$app->user->isGuest) {
-            return $this->actionLogin();
-        }
+//        if (Yii::$app->user->isGuest) {
+//            return $this->actionLogin();
+//        }
         return $this->render('index');
     }
 
@@ -117,4 +118,47 @@ class SiteController extends Controller
             }
         }
     }
+
+    public function actionLoadFile() {
+
+        $ftp = new \yii2mod\ftp\FtpClient();
+        $host = 'ftp.127.0.0.1';
+        $ftp->connect($host, false, 80);
+        echo $ftp->help();
+
+        $model = new User();
+
+        if( isset($_FILES['csv_file']) ) {
+
+            $handle = fopen($_FILES['csv_file']['tmp_name'], 'r');
+
+            if ($handle) {
+                while( ($line = fgetcsv($handle, 1000, ";")) != FALSE) {
+                    $model->codigo          = $line[0];
+                    $model->nome            = $line[1];
+                    $model->descricao       = $line[2];
+                    $model->stock           = $line[3];
+                    $model->data_reposicao  = $line[4];
+
+                    $model->save();
+                }
+            }
+            fclose($handle);
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function actionOfficesSearch()
+    {
+        $model = new SearchOfficesForm();
+
+        if ($model->load(Yii::$app->request->post()) and $model->validate()) {
+            $model->offices = $model->searchOffices();
+        }
+
+        return $this->renderAjax('@app/widgets/views/searchOffices.php', ['model' => $model]);
+    }
+
 }

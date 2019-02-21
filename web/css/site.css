@@ -23,7 +23,7 @@ body {
 
 .jumbotron {
     text-align: center;
-    background-color: transparent;
+    background-color: lightgrey;
 }
 
 .jumbotron .btn {
@@ -112,4 +112,32 @@ a.desc:after {
 
 .nav > li > form > button.logout:focus {
     outline: none;
+}
+
+.root-page {
+    position: relative;
+}
+
+.root-page .container {
+    max-width: 50%;
+}
+
+.root-page .otp-logo {
+    width: 100%;
+}
+
+.root-page .nc-logo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20%;
+    border-radius: 5px;
+}
+
+.root-page button {
+    background-color: #0b93d5;
+    border-radius: 3px;
+    border: none;
+    color: #fff;
+    padding: 2%;
 }

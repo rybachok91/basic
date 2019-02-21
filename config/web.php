@@ -2,7 +2,6 @@
 
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
-$db_nc_core = require __DIR__ . '/db_nc_core.php';
 
 $config = [
     'id' => 'basic',
@@ -41,13 +40,12 @@ $config = [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
                 [
-                    'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
+                    'class' => 'yii\log\DbTarget',
+                    'logTable' => 'LOG'
                 ],
             ],
         ],
         'db' => $db,
-        'db_nc_core' => $db_nc_core,
         'authManager' => [
             'class' => 'yii\rbac\DbManager',
         ],

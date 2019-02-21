@@ -19,13 +19,13 @@
         "yiisoft/yii2-bootstrap": "~2.0.7",
         "yiisoft/yii2-swiftmailer": "~2.0.0",
         "yidas/yii2-bower-asset": "~2.0.13",
-        "zlakomanov/yii2-oracle-pack": "*",
         "yiisoft/yii2-debug": "^2.0",
         "2amigos/yii2-date-picker-widget": "~1.0",
         "yiisoft/yii2-jui": "^2.0",
         "kartik-v/yii2-widget-datepicker": "@dev",
         "kartik-v/yii2-grid": "@dev",
-        "newcontact/yii2-nc-core": "*"
+        "timurmelnikov/yii2-loading-overlay": "~1.0.0",
+        "kartik-v/yii2-widget-select2": "@dev"
     },
     "require-dev": {
         "yiisoft/yii2-gii": "~2.0.0",
@@ -68,14 +68,6 @@
         {
             "type": "composer",
             "url": "https://asset-packagist.org"
-        },
-        {
-            "type": "git",
-            "url": "http://gitlab.newcontact.su/a.zlakomanov/yii2-oracle-pack.git"
-        },
-        {
-            "type": "git",
-            "url": "http://gitlab.newcontact.su/SM4/yii2-nc-core.git"
         }
     ]
 }
