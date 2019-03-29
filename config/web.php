@@ -1,6 +1,5 @@
 <?php
 
-$params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
 $config = [
@@ -63,7 +62,6 @@ $config = [
             'class' => '\kartik\grid\Module'
         ],
     ],
-    'params' => $params,
 ];
 
 if (YII_ENV_DEV) {

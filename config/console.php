@@ -1,6 +1,5 @@
 <?php
 
-$params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
 $config = [
@@ -25,7 +24,6 @@ $config = [
             'class' => 'yii\rbac\DbManager'
         ]
     ],
-    'params' => $params,
     /*
     'controllerMap' => [
         'fixture' => [ // Fixture generation command line.

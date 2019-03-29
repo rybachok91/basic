@@ -3,7 +3,6 @@
 namespace app\models;
 
 use Yii;
-use yii\base\Exception;
 use yii\base\Model;
 use yii\web\IdentityInterface;
 
@@ -19,8 +18,6 @@ class User extends Model implements IdentityInterface
     public $username;
     public $password;
     public $rememberMe = true;
-
-    private $authKey;
 
     public function rules()
     {
@@ -76,22 +73,6 @@ class User extends Model implements IdentityInterface
      */
     public static function findIdentity($id)
     {
-//        $user = self::loadUserFromSession();
-//        if (is_object($user) && $user instanceof User) {
-//            return $user;
-//        } else if (!empty($id)) {
-//            /** @var MvEmployees $employee */
-//            $employee = MvEmployees::findOne(['LOGIN' => $id]);
-//            if (!is_null($employee)) {
-//                $user = new User();
-//                $user->username = $employee->LOGIN;
-//                $user->password = $employee->PASSWORD_HASH;
-//                self::saveUserToSession($user);
-//                return $user;
-//            }
-//
-//        }
-//        return null;
         return true;
     }
 
@@ -124,20 +105,6 @@ class User extends Model implements IdentityInterface
 
     public function validatePassword($attribute, $params)
     {
-//        if (!$this->hasErrors()) {
-//            try {
-//                /** @var MvEmployees $user */
-//                $user = MvEmployees::findByLoginAndPassword($this->username, $this->password);
-//                if (!empty($user)) {
-//                    $this->username = $user->LOGIN;
-//                }
-//            } catch (Exception $e) {
-//                $this->addError($attribute, 'Попробуйте позже: ' . $e->getMessage());
-//            }
-//            if (empty($user)) {
-//                $this->addError($attribute, 'Некорретный пароль');
-//            }
-//        }
         return true;
     }
 
@@ -147,10 +114,6 @@ class User extends Model implements IdentityInterface
      */
     public function login()
     {
-//        if ($this->validate()) {
-//            self::saveUserToSession($this);
-//            return Yii::$app->user->login($this, $this->rememberMe ? 3600 * 24 * 30 : 0);
-//        }
         return true;
     }
 
