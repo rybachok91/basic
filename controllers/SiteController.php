@@ -47,4 +47,9 @@ class SiteController extends Controller
     {
         return $this->render('index');
     }
+
+    public function actionHandler() {
+        $id = \Yii::$app->request->get('id');
+        return 'OK! id = ' . $id ?? '-0';
+    }
 }
