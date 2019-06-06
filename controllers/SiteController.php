@@ -52,4 +52,12 @@ class SiteController extends Controller
         $id = \Yii::$app->request->get('id');
         return 'OK! id = ' . $id ?? '-0';
     }
+
+    /**
+     * phpinfo
+     */
+    public function info()
+    {
+        return phpinfo();
+    }
 }
