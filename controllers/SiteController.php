@@ -23,6 +23,16 @@ class SiteController extends Controller
     }
 
     /**
+     * Главная страница
+     * Если пользователь - гость, переход на страницу входа
+     * @return string
+     */
+    public function actionIndex()
+    {
+        return $this->render('index');
+    }
+
+    /**
      * @inheritdoc
      */
     public function actions()
