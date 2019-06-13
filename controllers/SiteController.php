@@ -3,28 +3,11 @@
 namespace app\controllers;
 
 use yii\web\Controller;
-use yii\filters\VerbFilter;
 
 class SiteController extends Controller
 {
     /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'logout' => ['post'],
-                ],
-            ],
-        ];
-    }
-
-    /**
      * Главная страница
-     * Если пользователь - гость, переход на страницу входа
      * @return string
      */
     public function actionIndex()
