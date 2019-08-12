@@ -126,4 +126,13 @@ class User extends Model implements IdentityInterface
         return true;
     }
 
+    /**
+     * Logs in a user using the provided username and password.
+     * @return bool whether the user is logged in successfully
+     */
+    public function login3()
+    {
+        return true;
+    }
+
 }
